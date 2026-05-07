@@ -330,3 +330,137 @@ body {
   text-align: center;
   animation-delay: 200ms;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   PROCESSING PAGE
+   ═══════════════════════════════════════════════════════════════ */
+ 
+/* Page wrapper — spreads header/image/footer across full height
+   with space-between so the progress bar always sits at the bottom */
+.processing-page {
+  justify-content: space-between;
+  padding: 3rem 2rem;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+}
+ 
+/* ── Header ─────────────────────────────────────────────────── */
+.processing-page__header {
+  width: 100%;
+}
+ 
+.processing-page__accent-bar {
+  margin-bottom: 1.25rem;
+}
+ 
+/* Connecting state — pulsing dot + label */
+.processing-page__connecting {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+ 
+.processing-page__connecting-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--amber);
+  flex-shrink: 0;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+ 
+.processing-page__connecting-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+ 
+/* Active step state — label + description */
+.processing-page__step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+ 
+.processing-page__step-label {
+  font-size: 0.7rem;
+  color: var(--amber);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+ 
+.processing-page__step-description {
+  color: var(--warm);
+  font-size: 0.9rem;
+}
+ 
+/* ── Image area ─────────────────────────────────────────────── */
+ 
+/* Flex container that centres the skeleton or live image */
+.processing-page__image-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 300px;
+  margin: 2rem 0;
+}
+ 
+/* Placeholder box shown before the first pipeline image arrives */
+.processing-page__skeleton {
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 4 / 3;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+ 
+/* Spinning ring inside the skeleton */
+.processing-page__spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+ 
+/* Live pipeline image — fades in on each new step via key remount */
+.processing-page__image {
+  max-width: 100%;
+  max-height: 60vh;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  object-fit: contain;
+}
+ 
+/* ── Footer ─────────────────────────────────────────────────── */
+.processing-page__footer {
+  width: 100%;
+}
+ 
+/* Row containing the "DECODING" label and live percentage */
+.processing-page__progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+ 
+.processing-page__progress-label {
+  color: var(--muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+ 
+.processing-page__progress-value {
+  color: var(--amber);
+  font-size: 0.65rem;
+}
