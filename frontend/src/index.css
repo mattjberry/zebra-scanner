@@ -78,7 +78,7 @@ body {
 }
 
 /* View-specific overrides — target these to change background,
-   texture opacity, or transitions per view
+   texture opacity, or transitions per view */
 .app--upload     {}
 .app--processing {}
 .app--results    {}
@@ -174,3 +174,159 @@ body {
 }
 
 .fade-up { animation: fadeUp 500ms ease forwards; }
+
+/* ═══════════════════════════════════════════════════════════════
+   UPLOAD PAGE
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Page wrapper — centers content with a max-width column */
+.upload-page {
+  gap: 3rem;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.upload-page__header {
+  text-align: center;
+}
+
+/* Centers the accent bar within the header */
+.upload-page__accent-bar {
+  margin: 0 auto 1.5rem;
+}
+
+.upload-page__title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.upload-page__title-accent {
+  color: var(--amber);
+}
+
+.upload-page__tagline {
+  font-size: 1.05rem;
+  color: var(--warm);
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ── Drop zone ──────────────────────────────────────────────── */
+
+/* Outer wrapper receives drag events so the border of the inner
+   dropzone updates even when dragging over child elements */
+.upload-page__dropzone-wrapper {
+  width: 100%;
+}
+
+.upload-page__dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+/* Active drag-over state */
+.upload-page__dropzone--dragging {
+  border-color: var(--amber);
+  background: var(--amber-glow);
+}
+
+/* Image selected — remove padding so the preview fills the box */
+.upload-page__dropzone--filled {
+  padding: 0;
+  cursor: default;
+}
+
+/* ── Preview (image selected state) ────────────────────────── */
+.upload-page__preview {
+  position: relative;
+  width: 100%;
+}
+
+.upload-page__preview-img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+}
+
+/* Floating button to swap the selected image */
+.upload-page__preview-change {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--warm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.upload-page__preview-change:hover {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+/* ── Empty state (no image selected) ───────────────────────── */
+.upload-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.upload-page__empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.3;
+  margin-bottom: 0.6rem;
+  line-height: 1;
+}
+
+.upload-page__empty-primary {
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.upload-page__empty-secondary {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* Hidden — only exists to trigger the native file picker */
+.upload-page__file-input {
+  display: none;
+}
+
+/* ── Submit ─────────────────────────────────────────────────── */
+.upload-page__submit {
+  display: flex;
+  justify-content: center;
+  animation-delay: 50ms;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.upload-page__footer {
+  color: var(--muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  animation-delay: 200ms;
+}
