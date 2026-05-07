@@ -33,7 +33,9 @@ async function* readSSEStream(response) {
 
   while (true) {
     const { done, value } = await reader.read()
-    if (done) break
+    if (done) {
+      break
+    }
 
     buffer += decoder.decode(value, { stream: true })
 
@@ -96,7 +98,9 @@ export default function App() {
       })
 
       if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}`)
+        errorMessage = 'Image processing failed, try a different one?'
+        view = 'error';
+        throw new Error(`Server responded with ${response.status}`);
       }
 
       // Iterate over parsed SSE events as they arrive

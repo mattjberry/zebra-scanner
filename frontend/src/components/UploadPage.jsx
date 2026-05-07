@@ -19,7 +19,9 @@ export default function UploadPage({ onUpload }) {
   }, [handleFile])
 
   const handleSubmit = useCallback(() => {
-    if (selectedFile) onUpload(selectedFile)
+    if (selectedFile) {
+        onUpload(selectedFile)
+    }
   }, [selectedFile, onUpload])
 
   // Build dropzone class string from state
