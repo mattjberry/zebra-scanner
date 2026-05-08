@@ -4,4 +4,3 @@ frontend/node_modules
 
 *.pyc
 *.csv.gz
-build_upc_index.py
