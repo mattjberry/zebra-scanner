@@ -10,6 +10,8 @@ import matplotlib
 matplotlib.use('Agg')  # non-interactive backend, required in Docker
 import matplotlib.pyplot as plt
 
+from .lookup import find_nearest_product
+
 
 # ---------------------------------------------------------------
 # Helpers
@@ -230,19 +232,6 @@ def build_upc(eleven_digits):
     return eleven_digits + check
 
 
-def lookup_nearest_upc(upc):
-    """
-    Placeholder for UPC lookup.
-    Will query UPC ItemDB (or local nearest-neighbour DB) in the next phase.
-    Returns a mock result for now.
-    """
-    return {
-        'upc': upc,
-        'product': 'Lookup not yet implemented',
-        'url': None,
-        'image': None,
-    }
-
 
 # ---------------------------------------------------------------
 # Pipeline runner — generator that yields SSE-ready step dicts
@@ -320,10 +309,23 @@ def run_pipeline(image_bytes):
     )
 
     # Step 8 — Lookup
-    result = lookup_nearest_upc(upc)
+    yield step_event(
+        label='Searching',
+        description='Scanning Open Food Facts for the nearest product...',
+        progress=90,
+    )
+
+    result = find_nearest_product(upc)
+
+    if result is None:
+        yield {
+            'error': f'No product found near UPC {upc}. Try a different zebra.'
+        }
+        return
+
     yield step_event(
         label='Result',
-        description=f'Nearest product found for UPC {upc}.',
+        description=f'Found: {result["product"]}',
         progress=100,
         data={'result': result},
     )
