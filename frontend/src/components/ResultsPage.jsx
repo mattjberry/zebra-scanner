@@ -1,6 +1,19 @@
+/* Note -
+product.product             the product name string — yes, confusingly named
+product.upc                 the matched UPC string (may differ from the zebra's UPC)
+product.image               product photo URL — may be an array from UPC ItemDB
+product.offers              array of { merchant, link, price } objects
+product.offers[0]           first/best offer
+product.offers[0].link      retailer URL
+product.offers[0].merchant  retailer name e.g. "Amazon"
+*/
+
+
 export default function ResultsPage({originalImage, upc, product, onReset}) {
+    // both the prop and the name of the product share the same name
+    // so we destructure it here for less confusion later
     product_name = product.product;
-    
+
     return (
         <div className="results-page">
             {/* display original given image */}
