@@ -248,7 +248,7 @@ def run_pipeline(image_bytes):
     yield step_event(
         label='Loaded',
         description='Image received and loaded into memory.',
-        image=array_to_base64(image),
+        image_b64=array_to_base64(image),
         progress=10,
     )
 
@@ -257,7 +257,7 @@ def run_pipeline(image_bytes):
     yield step_event(
         label='Grayscale',
         description='Converted to grayscale to isolate luminance.',
-        image=array_to_base64(gray, cmap='gray'),
+        image_b64=array_to_base64(gray, cmap='gray'),
         progress=25,
     )
 
@@ -266,7 +266,7 @@ def run_pipeline(image_bytes):
     yield step_event(
         label='Threshold',
         description='Otsu thresholding applied — stripes separated from background.',
-        image=array_to_base64(binary, cmap='gray'),
+        image_b64=array_to_base64(binary, cmap='gray'),
         progress=40,
     )
 
@@ -275,7 +275,7 @@ def run_pipeline(image_bytes):
     yield step_event(
         label='Cleaned',
         description='Morphological cleanup — noise and small regions removed.',
-        image=array_to_base64(cleaned, cmap='gray'),
+        image_b64=array_to_base64(cleaned, cmap='gray'),
         progress=55,
     )
 
@@ -284,7 +284,7 @@ def run_pipeline(image_bytes):
     yield step_event(
         label='Aligned',
         description='Stripes rotated to vertical orientation for projection.',
-        image=array_to_base64(aligned, cmap='gray'),
+        image_b64=array_to_base64(aligned, cmap='gray'),
         progress=65,
     )
 
@@ -294,7 +294,7 @@ def run_pipeline(image_bytes):
     yield step_event(
         label='Signal',
         description='2D stripe pattern collapsed to 1D waveform via column projection.',
-        image=signal_to_base64(normalized),
+        image_b64=signal_to_base64(normalized),
         progress=75,
     )
 
