@@ -99,7 +99,7 @@ def clean_binary(binary):
     """
     cleaned = morphology.remove_small_objects(
         binary.astype(bool),
-        min_size=100
+        max_size=20
     )
     return cleaned.astype(np.uint8)
 
@@ -122,8 +122,9 @@ def align_stripes(binary):
         angle_rad = largest.orientation
         angle_deg = np.degrees(angle_rad)
 
-        # Rotate so stripes are vertical (column-wise projection works best)
-        rotated = transform.rotate(binary, angle_deg, resize=True, preserve_range=True)
+        # regionprops orientation is measured from the horizontal axis
+        # correct by 90 so stripes end up vertical for column projection
+        rotated = transform.rotate(binary, angle_deg + 90, resize=True, preserve_range=True)
         return (rotated > 0.5).astype(np.uint8)
 
     except Exception:
@@ -157,8 +158,9 @@ def signal_to_barcode_string(signal, num_digits=11):
 
     Returns an 11-digit string (the 12th check digit is computed separately).
     """
-    # Binarize the signal
-    binary_signal = (signal > 0.5).astype(int)
+    # Binarize the signal based of the signal mean
+    threshold = np.mean(signal)
+    binary_signal = (signal > threshold).astype(int)
 
     # Get run-length encoding: (value, length) pairs
     runs = []
