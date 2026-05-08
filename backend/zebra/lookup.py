@@ -93,7 +93,9 @@ def lookup_upc(upc: str) -> dict | None:
     except requests.exceptions.RequestException:
         return None
 
-    if response.status_code != 200:
+    # OFF returns 404 with a JSON body for missing products,
+    # and 200 for found ones, accept both and let status field decide
+    if response.status_code not in (200, 404):
         return None
 
     try:
