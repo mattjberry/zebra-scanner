@@ -51,6 +51,9 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10MB
 
 # ── Django REST Framework ─────────────────────────────────────────────────────
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],   # no auth schemes
+    'DEFAULT_PERMISSION_CLASSES': [],       # no permission checks
+    'UNAUTHENTICATED_USER': None,
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.MultiPartParser',  # required for image uploads
         'rest_framework.parsers.JSONParser',
