@@ -38,14 +38,16 @@ function ZebraBarcode({ upc }) {
 
 
 /* Note -
-product.product             the product name string — yes, confusingly named
-product.upc                 the matched UPC string (may differ from the zebra's UPC)
-product.image               product photo URL — may be an array from UPC ItemDB
-product.offers              array of { merchant, link, price } objects
-product.offers[0]           first/best offer
-product.offers[0].link      retailer URL
-product.offers[0].merchant  retailer name e.g. "Amazon"
-*/
+Open Food Facts response shape (after normalisation in lookup.py):
+   product.product   the product name string (from OFF's product_name field)
+   product.upc       the matched UPC — may differ from the zebra's generated UPC
+   product.image     single image URL string (from OFF's image_front_url)
+   product.offers    always an empty array from OFF — no retailer data available
+
+    Some seemingly unused code (like product.offers) is left in place in case 
+    The data source ever changes, then this component shouldn't need 
+    to be overly modified to work
+   */
 
 
 export default function ResultsPage({originalImage, upc, product, onReset}) {
@@ -56,7 +58,13 @@ export default function ResultsPage({originalImage, upc, product, onReset}) {
         ? product.image[0]       // UPC ItemDB returns an images array
         : product?.image ?? null
     const offers     = product?.offers ?? []
-    const firstOffer = offers[0] ?? null
+
+  // Use the matched product's UPC for the OFF link, not the zebra-derived one,
+  // since the zebra UPC may not have existed in the database
+  const offUrl = product?.upc
+    ? `https://world.openfoodfacts.org/product/${product.upc}`
+    : null
+
 
   return (
     <div className="results-page page">
@@ -107,26 +115,32 @@ export default function ResultsPage({originalImage, upc, product, onReset}) {
  
           <h2 className="results-page__product-title">{name}</h2>
  
-          {/* Retailer offer links — show all available */}
-          {offers.length > 0 ? (
-            <div className="results-page__offers">
-              {offers.map((offer, i) => (
-                <a
-                  key={i}
-                  className="btn btn-ghost results-page__offer-link"
-                  href={offer.link ?? offer.url ?? '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {offer.merchant ?? offer.retailer ?? 'View'} →
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p className="results-page__no-offers">
-              No retailer links found for this product.
-            </p>
-          )}
+          {/* Retailer links if available, otherwise fall back to OFF page */}
+          <div className="results-page__offers">
+            {offers.length > 0
+              ? offers.map((offer, i) => (
+                  <a
+                    key={i}
+                    className="btn btn-ghost results-page__offer-link"
+                    href={offer.link ?? offer.url ?? '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {offer.merchant ?? offer.retailer ?? 'View'} →
+                  </a>
+                ))
+              : offUrl && (
+                  <a
+                    className="btn btn-ghost results-page__offer-link"
+                    href={offUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View on Open Food Facts →
+                  </a>
+                )
+            }
+          </div>
  
         </div>
       </div>
