@@ -8,6 +8,7 @@ from django.shortcuts import render
 # Create your views here.
 import io
 import json
+import time
 from django.http import StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -51,6 +52,9 @@ def _event_stream(image_bytes):
         for step in run_pipeline(image_bytes):
             payload = json.dumps(step)
             yield f"data: {payload}\n\n"
+            # Add an artificial delay between each processing step excluding end steps
+            if not step.get('done') and not step.get('error') and not step.get('result'):
+                time.sleep(1)
 
     except Exception as e:
         yield f"data: {json.dumps({'error': str(e)})}\n\n"
