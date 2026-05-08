@@ -98,8 +98,6 @@ export default function App() {
       })
 
       if (!response.ok) {
-        errorMessage = 'Image processing failed, try a different one?'
-        view = 'error';
         throw new Error(`Server responded with ${response.status}`);
       }
 
