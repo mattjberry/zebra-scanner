@@ -1,30 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
 
-/* ─── Design Tokens ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════════════════════════ */
 :root {
-  --black:        #0A0A0A;
-  --deep:         #111111;
-  --stripe:       #161616;
-  --surface:      #1C1C1C;
-  --border:       #2A2A2A;
-  --muted:        #5A5550;
-  --warm:         #8A8278;
-  --white:        #F5F0E8;
-  --offwhite:     #E8E2D8;
-  --amber:        #E8A020;
-  --amber-dim:    #B87A10;
-  --amber-glow:   rgba(232, 160, 32, 0.12);
+  --black:      #0A0A0A;
+  --deep:       #111111;
+  --stripe:     #161616;
+  --surface:    #1C1C1C;
+  --border:     #2A2A2A;
+  --muted:      #5A5550;
+  --warm:       #8A8278;
+  --white:      #F5F0E8;
+  --offwhite:   #E8E2D8;
+  --amber:      #E8A020;
+  --amber-dim:  #B87A10;
+  --amber-glow: rgba(232, 160, 32, 0.12);
 
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'DM Sans', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
 
-  --radius:       4px;
-  --radius-lg:    8px;
-  --transition:   200ms ease;
+  --radius:    4px;
+  --radius-lg: 8px;
+  --transition: 200ms ease;
 }
 
-/* ─── Reset ─────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   RESET
+   ═══════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body, #root { height: 100%; }
 
@@ -37,54 +41,29 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ─── Stripe background texture ─────────────────────────────── */
-.stripe-bg {
-  background-image: repeating-linear-gradient(
-    90deg,
-    transparent 0px, transparent 18px,
-    var(--stripe) 18px, var(--stripe) 20px
-  );
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL UTILITIES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Typography helpers */
+.display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
-/* ─── App shell ─────────────────────────────────────────────── */
-.app {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.mono { font-family: var(--font-mono); }
+
+/* Amber accent bar — used as a section divider across all pages */
+.accent-bar {
+  width: 48px;
+  height: 3px;
+  background: var(--amber);
+  margin-bottom: 1.5rem;
 }
 
-/* Stripe texture sits behind all content as a decorative layer */
-.app__stripe-layer {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image: repeating-linear-gradient(
-    90deg,
-    transparent 0px, transparent 18px,
-    var(--stripe) 18px, var(--stripe) 20px
-  );
-  opacity: 0.6;
-}
-
-/* View container sits above the stripe layer */
-.app__view {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* View-specific overrides — target these to change background,
-   texture opacity, or transitions per view */
-.app--upload     {}
-.app--processing {}
-.app--results    {}
-.app--error      {}
-
-/* ─── Shared page layout ────────────────────────────────────── */
+/* Shared page layout — flex column, centred, full viewport height */
 .page {
   flex: 1;
   display: flex;
@@ -95,25 +74,7 @@ body {
   min-height: 100vh;
 }
 
-/* ─── Typography ────────────────────────────────────────────── */
-.display {
-  font-family: var(--font-display);
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.mono { font-family: var(--font-mono); }
-
-/* ─── Amber accent bar ───────────────────────────────────────── */
-.accent-bar {
-  width: 48px;
-  height: 3px;
-  background: var(--amber);
-  margin-bottom: 1.5rem;
-}
-
-/* ─── Buttons ───────────────────────────────────────────────── */
+/* ── Buttons ─────────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -141,7 +102,7 @@ body {
 }
 .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
 
-/* ─── Progress bar ───────────────────────────────────────────── */
+/* ── Progress bar ────────────────────────────────────────────── */
 .progress-track {
   width: 100%;
   height: 2px;
@@ -158,7 +119,7 @@ body {
   box-shadow: 0 0 8px var(--amber);
 }
 
-/* ─── Animations ────────────────────────────────────────────── */
+/* ── Animations ──────────────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -176,10 +137,49 @@ body {
 .fade-up { animation: fadeUp 500ms ease forwards; }
 
 /* ═══════════════════════════════════════════════════════════════
+   APP SHELL
+   ═══════════════════════════════════════════════════════════════ */
+
+.app {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stripe texture — fixed behind all content as a decorative layer */
+.app__stripe-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px, transparent 18px,
+    var(--stripe) 18px, var(--stripe) 20px
+  );
+  opacity: 0.6;
+}
+
+/* View container sits above the stripe layer */
+.app__view {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View-specific overrides — target to change bg or texture per view */
+.app--upload     {}
+.app--processing {}
+.app--results    {}
+.app--error      {}
+
+/* ═══════════════════════════════════════════════════════════════
    UPLOAD PAGE
    ═══════════════════════════════════════════════════════════════ */
 
-/* Page wrapper — centers content with a max-width column */
 .upload-page {
   gap: 3rem;
   max-width: 640px;
@@ -192,7 +192,6 @@ body {
   text-align: center;
 }
 
-/* Centers the accent bar within the header */
 .upload-page__accent-bar {
   margin: 0 auto 1.5rem;
 }
@@ -217,8 +216,8 @@ body {
 
 /* ── Drop zone ──────────────────────────────────────────────── */
 
-/* Outer wrapper receives drag events so the border of the inner
-   dropzone updates even when dragging over child elements */
+/* Outer wrapper receives drag events so the inner border updates
+   even when dragging over child elements */
 .upload-page__dropzone-wrapper {
   width: 100%;
 }
@@ -236,19 +235,18 @@ body {
   transition: border-color var(--transition), background var(--transition);
 }
 
-/* Active drag-over state */
 .upload-page__dropzone--dragging {
   border-color: var(--amber);
   background: var(--amber-glow);
 }
 
-/* Image selected — remove padding so the preview fills the box */
+/* Remove padding so the preview image fills the box edge-to-edge */
 .upload-page__dropzone--filled {
   padding: 0;
   cursor: default;
 }
 
-/* ── Preview (image selected state) ────────────────────────── */
+/* ── Preview ────────────────────────────────────────────────── */
 .upload-page__preview {
   position: relative;
   width: 100%;
@@ -261,7 +259,6 @@ body {
   object-fit: cover;
 }
 
-/* Floating button to swap the selected image */
 .upload-page__preview-change {
   position: absolute;
   bottom: 1rem;
@@ -282,7 +279,7 @@ body {
   border-color: var(--amber);
 }
 
-/* ── Empty state (no image selected) ───────────────────────── */
+/* ── Empty state ────────────────────────────────────────────── */
 .upload-page__empty {
   display: flex;
   flex-direction: column;
@@ -310,7 +307,6 @@ body {
   font-size: 0.8rem;
 }
 
-/* Hidden — only exists to trigger the native file picker */
 .upload-page__file-input {
   display: none;
 }
@@ -331,13 +327,11 @@ body {
   animation-delay: 200ms;
 }
 
-
 /* ═══════════════════════════════════════════════════════════════
    PROCESSING PAGE
    ═══════════════════════════════════════════════════════════════ */
- 
-/* Page wrapper — spreads header/image/footer across full height
-   with space-between so the progress bar always sits at the bottom */
+
+/* space-between pins the header to the top and progress to the bottom */
 .processing-page {
   justify-content: space-between;
   padding: 3rem 2rem;
@@ -345,23 +339,22 @@ body {
   width: 100%;
   margin: 0 auto;
 }
- 
+
 /* ── Header ─────────────────────────────────────────────────── */
 .processing-page__header {
   width: 100%;
 }
- 
+
 .processing-page__accent-bar {
   margin-bottom: 1.25rem;
 }
- 
-/* Connecting state — pulsing dot + label */
+
 .processing-page__connecting {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
- 
+
 .processing-page__connecting-dot {
   width: 10px;
   height: 10px;
@@ -370,35 +363,32 @@ body {
   flex-shrink: 0;
   animation: pulse 1.2s ease-in-out infinite;
 }
- 
+
 .processing-page__connecting-label {
   color: var(--muted);
   font-size: 0.75rem;
   letter-spacing: 0.1em;
 }
- 
-/* Active step state — label + description */
+
 .processing-page__step {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
- 
+
 .processing-page__step-label {
   font-size: 0.7rem;
   color: var(--amber);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
- 
+
 .processing-page__step-description {
   color: var(--warm);
   font-size: 0.9rem;
 }
- 
+
 /* ── Image area ─────────────────────────────────────────────── */
- 
-/* Flex container that centres the skeleton or live image */
 .processing-page__image-area {
   flex: 1;
   display: flex;
@@ -408,8 +398,7 @@ body {
   min-height: 300px;
   margin: 2rem 0;
 }
- 
-/* Placeholder box shown before the first pipeline image arrives */
+
 .processing-page__skeleton {
   width: 100%;
   max-width: 480px;
@@ -421,8 +410,7 @@ body {
   align-items: center;
   justify-content: center;
 }
- 
-/* Spinning ring inside the skeleton */
+
 .processing-page__spinner {
   width: 32px;
   height: 32px;
@@ -431,8 +419,8 @@ body {
   border-radius: 50%;
   animation: spin 800ms linear infinite;
 }
- 
-/* Live pipeline image — fades in on each new step via key remount */
+
+/* key remount on step.label triggers fade-up for each new image */
 .processing-page__image {
   max-width: 100%;
   max-height: 60vh;
@@ -440,172 +428,240 @@ body {
   border: 1px solid var(--border);
   object-fit: contain;
 }
- 
+
 /* ── Footer ─────────────────────────────────────────────────── */
 .processing-page__footer {
   width: 100%;
 }
- 
-/* Row containing the "DECODING" label and live percentage */
+
 .processing-page__progress-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 0.5rem;
 }
- 
+
 .processing-page__progress-label {
   color: var(--muted);
   font-size: 0.65rem;
   letter-spacing: 0.08em;
 }
- 
+
 .processing-page__progress-value {
   color: var(--amber);
   font-size: 0.65rem;
 }
 
-
-
 /* ═══════════════════════════════════════════════════════════════
    RESULTS PAGE
    ═══════════════════════════════════════════════════════════════ */
- 
-/* Two-column grid with a full-width actions row below.
-   Left column = 1/3, right column = 2/3, gap provides the buffer. */
+
 .results-page {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  grid-template-rows: 1fr auto;
-  grid-template-areas:
-    "left    product"
-    "actions actions";
-  gap: 2rem 3rem;
-  align-items: start;
-  max-width: 1000px;
+  gap: 2.5rem;
+  max-width: 1100px;
   width: 100%;
   margin: 0 auto;
   padding: 3rem 2rem;
+  justify-content: flex-start;
 }
- 
-/* ── Left column ────────────────────────────────────────────── */
- 
-/* Stacks the original image and barcode vertically with a gap */
+
+/* ── Header ─────────────────────────────────────────────────── */
+.results-page__header {
+  width: 100%;
+  text-align: center;
+}
+
+.results-page__accent-bar {
+  margin: 0 auto 1.25rem;
+}
+
+.results-page__title {
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  color: var(--white);
+}
+
+.results-page__title-accent {
+  color: var(--amber);
+}
+
+/* ── Main grid — left 1/3, right 2/3 ───────────────────────── */
+.results-page__grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  width: 100%;
+  align-items: start;
+}
+
+/* ── Left panel ─────────────────────────────────────────────── */
 .results-page__left {
-  grid-area: left;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
- 
-/* Shared card style for both left-column items */
+
+/* Shared card style for original image and barcode */
 .results-page__original-image,
 .results-page__upc {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
- 
-/* Label sits above the image/barcode inside the card */
+
 .results-page__original-label,
 .results-page__upc-label {
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  color: var(--muted);
   padding: 0.6rem 0.9rem;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
   border-bottom: 1px solid var(--border);
 }
- 
-/* Original zebra photo — fills the card width */
+
 .results-page__original-img {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
 }
- 
-/* Barcode card body — centres the SVG with some breathing room */
+
 .results-page__barcode-box {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
   padding: 1.25rem 1rem;
 }
- 
+
 .results-page__barcode-svg {
-  max-width: 100%;
+  width: 100%;
+  max-width: 220px;
 }
- 
-/* Plain digit fallback shown below the SVG if JsBarcode fails */
-.results-page__upc-digits {
-  font-size: 0.7rem;
+
+.results-page__barcode-fallback {
   color: var(--muted);
-  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
 }
- 
-/* ── Right column ───────────────────────────────────────────── */
+
+/* ── Right panel ────────────────────────────────────────────── */
 .results-page__product-area {
-  grid-area: product;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-}
- 
-.results-page__accent-bar {
-  margin-bottom: 0.25rem;
-}
- 
-.results-page__product-eyebrow {
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-  color: var(--amber);
-  text-transform: uppercase;
-}
- 
-.results-page__product-title {
-  font-size: clamp(1.4rem, 3vw, 2.2rem);
-  color: var(--white);
-  line-height: 1.2;
-}
- 
-/* Product image from the lookup API */
-.results-page__product-image-wrap {
-  background: var(--deep);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  display: flex;
-  justify-content: center;
-  margin-top: 0.5rem;
+  overflow: hidden;
 }
- 
+
+.results-page__product-image-wrap {
+  background: var(--deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
 .results-page__product-img {
   max-height: 200px;
   max-width: 100%;
   object-fit: contain;
 }
- 
-.results-page__offer-retailer {
-  font-size: 0.75rem;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  margin-top: 0.25rem;
+
+.results-page__product-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  color: var(--white);
+  font-weight: 700;
+  line-height: 1.3;
+  padding: 1.25rem 1.5rem 0;
 }
- 
-/* ── Actions row ────────────────────────────────────────────── */
- 
-/* Full-width row sitting below both columns */
-.results-page__actions {
-  grid-area: actions;
+
+.results-page__offers {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.results-page__offer-link {
+  font-size: 0.7rem;
+  padding: 0.5rem 1rem;
+}
+
+.results-page__no-offers {
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+/* ── Actions ────────────────────────────────────────────────── */
+.results-page__actions {
+  display: flex;
+  justify-content: center;
   gap: 1rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--border);
+  width: 100%;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .results-page__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ERROR PAGE
+   ═══════════════════════════════════════════════════════════════ */
+
+.error-page {
+  gap: 2rem;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Decorative broken barcode — purely visual, no semantic meaning */
+.error-page__icon {
+  font-size: 1.8rem;
+  color: var(--border);
+  letter-spacing: -0.05em;
+  user-select: none;
+  text-decoration: line-through;
+}
+
+/* ── Message body ───────────────────────────────────────────── */
+.error-page__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.error-page__accent-bar {
+  background: #C0392B;   /* red instead of amber for error state */
+}
+
+.error-page__title {
+  font-size: 2rem;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+/* Error message displayed in a monospaced code-like box */
+.error-page__message {
+  color: var(--warm);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  width: 100%;
+}
+
+/* ── Action ─────────────────────────────────────────────────── */
+.error-page__reset-button {
+  /* inherits .btn .btn-ghost from JSX — no extra styles needed */
 }
