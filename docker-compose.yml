@@ -6,9 +6,8 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-    environment:
-      - DJANGO_SECRET_KEY=dev-secret-change-in-production
-      - DEBUG=True
+    env_file:
+      - .env
 
   frontend:
     build: ./frontend
