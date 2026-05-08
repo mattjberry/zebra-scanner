@@ -1,5 +1,6 @@
 import requests
 import os
+from .upc_index import find_nearest_upc
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
@@ -14,10 +15,12 @@ USER_AGENT = os.environ.get(
     'ZebraBarcode/1.0 (contact@example.com)',  # fallback for local dev
 )
 
-# How many UPCs either side of the generated one to try before giving up.
-# Each step produces 2 candidates (above and below), so radius 10 = up to
-# 21 API calls total (1 exact + 20 adjacent). Well within OFF's 100 req/min.
-SEARCH_RADIUS = 10
+# How many nearest UPCs to try before giving up.
+# With a local index, even 3 is very likely to find a hit since all
+# candidates are known to exist in the OFF database. Safeguards against
+# the actual API DB changing since the local instance was created
+MAX_CANDIDATES = 3
+ 
 
 # Request only the fields we actually use — keeps payloads small
 FIELDS = 'code,product_name,image_front_url'
@@ -128,27 +131,27 @@ def lookup_upc(upc: str) -> dict | None:
 def find_nearest_product(upc: str) -> dict | None:
     """
     Find the nearest product in Open Food Facts to the given UPC.
-
+ 
     Strategy:
-      1. Try the exact UPC first.
-      2. If no hit, walk outward numerically — +1, -1, +2, -2, ...
-         recomputing the check digit at each step.
-      3. Return the first hit found, or None if the search radius is exhausted.
-
-    The matched product's UPC will often differ from the input UPC — that
-    difference is the whole point of the nearest-neighbour approach, and is
-    surfaced to the user on the results page.
+      1. Use the local UPC index to find the nearest known codes via
+         binary search — O(log n), no API calls needed for the search.
+      2. Try each candidate against the OFF API until we get a hit.
+ 
+    Because all candidates come from the index (known to exist in OFF),
+    the first candidate almost always succeeds. MAX_CANDIDATES is a
+    safety net for the rare case where a product has been removed from
+    OFF since the index was built.
     """
-    # Exact match first
-    result = lookup_upc(upc)
-    if result:
-        return result
-
-    # Walk outward from the generated UPC
-    for candidate in adjacent_upcs(upc, SEARCH_RADIUS):
+    try:
+        candidates = find_nearest_upc(upc, n_candidates=MAX_CANDIDATES)
+    except FileNotFoundError as e:
+        raise RuntimeError(
+            'UPC index not found. Run build_upc_index.py first.'
+        ) from e
+ 
+    for candidate in candidates:
         result = lookup_upc(candidate)
         if result:
             return result
-
-    # Exhausted the search radius with no hit
+ 
     return None
