@@ -1,5 +1,5 @@
 export default function ErrorPage({errorMessage, reset}) {
-    return
+    return (
         <div className="error-page">
             <span className="error-page__message mono">
                 Uh oh! {errorMessage}
@@ -9,4 +9,5 @@ export default function ErrorPage({errorMessage, reset}) {
                 Go back
             </button>
         </div>
+    );
 }

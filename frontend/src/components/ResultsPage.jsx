@@ -1,5 +1,7 @@
-export default function ResultsPage({originalImage, upc, product, reset}) {
-    return 
+export default function ResultsPage({originalImage, upc, product, onReset}) {
+    product_name = product.product;
+    
+    return (
         <div className="results-page">
             {/* display original given image */}
             <div className="results-page__original-image">
@@ -20,14 +22,17 @@ export default function ResultsPage({originalImage, upc, product, reset}) {
             {/* display resulting product */}
             <div className="results-page__product-area">
                 <span className="results-page__product-title mono">
-                    {product.product}
+                    {product_name}
                 </span>
                 <img src={product.image}></img>
                 {/* go to first offer link found from look up */}
-                <button type="button" onClick={product.offers[1]}>Buy Now!</button>
+                <button type="button" onClick={() => window.open(product.offers[0]?.url, '_blank')}>
+                    Buy Now!
+                </button>
 
                 {/* reset state and go back to the upload page */}
-                <button type="button" onClick={reset}>Scan Again!</button>
+                <button type="button" onClick={onReset}>Scan Again!</button>
             </div>
         </div>
+    );
 }
