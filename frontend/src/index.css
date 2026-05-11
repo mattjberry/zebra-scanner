@@ -388,6 +388,24 @@ body {
   font-size: 0.9rem;
 }
 
+/* Wraps step label and confidence badge on the same row */
+.processing-page__step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Confidence percentage pill — amber outline, shown on detection step only */
+.processing-page__confidence-badge {
+  font-size: 0.65rem;
+  color: var(--amber);
+  border: 1px solid var(--amber-dim);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  letter-spacing: 0.08em;
+}
+
 /* ── Image area ─────────────────────────────────────────────── */
 .processing-page__image-area {
   flex: 1;
