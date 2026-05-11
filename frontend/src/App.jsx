@@ -164,6 +164,7 @@ export default function App() {
             step={step}
             progress={progress}
             confidence={confidence}
+            upc={upc}
           />
         )}
 

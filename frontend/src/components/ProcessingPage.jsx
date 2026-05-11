@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
+import ZebraBarcode from './ZebraBarcode'
 
-export default function ProcessingPage({ connecting, step, progress, confidence }) {
-  
-  const isDetectionStep = step.label === 'Zebra Detected'
-  
+export default function ProcessingPage({ connecting, step, progress, confidence, upc }) {
+    
   const [displayed, setDisplayed] = useState({ label: '', description: '', image: null })
+
+  const isDetectionStep = displayed.label === 'Zebra Detected'
 
   useEffect(() => {
     if (!step.image) {
@@ -16,7 +17,7 @@ export default function ProcessingPage({ connecting, step, progress, confidence 
     img.onerror = () => setDisplayed(step)
     img.src = `data:image/png;base64,${step.image}`
     return () => { img.onload = null; img.onerror = null }
-  }, [step.image])
+  }, [step.image, step.label])
 
   return (
     <div className="processing-page page">
@@ -37,7 +38,7 @@ export default function ProcessingPage({ connecting, step, progress, confidence 
           <div className="processing-page__step">
             <div className="processing-page__step-header">
               <span className="processing-page__step-label mono">
-                {step.label || 'Processing'}
+                {displayed.label || 'Processing'}
               </span>
               {isDetectionStep && confidence !== null && (
                 <span className="processing-page__confidence-badge mono">
@@ -47,7 +48,7 @@ export default function ProcessingPage({ connecting, step, progress, confidence 
             </div>
 
             <p className="processing-page__step-description">
-              {step.description || 'Analysing image...'}
+              {displayed.description || 'Analysing image...'}
             </p>
           </div>
         )}
@@ -55,13 +56,25 @@ export default function ProcessingPage({ connecting, step, progress, confidence 
 
       {/* ── Image area — skeleton until first frame arrives ───── */}
       <div className="processing-page__image-area">
-        {connecting || !displayed.image ? (
+        {/* four cases for:
+            1. connecting to backend 2. barcode step special case
+            3. image loading in 4. image displayed 
+          */}
+        {connecting ? (
+          <div className="processing-page__skeleton">
+            <div className="processing-page__spinner" aria-label="Loading" />
+          </div>
+        ) : displayed.label === 'Barcode' && upc ? (
+          <div className="processing-page__barcode-wrap fade-up">
+            <ZebraBarcode upc={upc} />
+          </div>
+        ) : !displayed.image ? (
           <div className="processing-page__skeleton">
             <div className="processing-page__spinner" aria-label="Loading" />
           </div>
         ) : (
           <img
-            key={displayed.label}        /* remount triggers fade-up on each new step */
+            key={displayed.label}
             className="processing-page__image fade-up"
             src={`data:image/png;base64,${displayed.image}`}
             alt={`Pipeline step: ${displayed.label}`}
