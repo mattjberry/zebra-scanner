@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import JsBarcode from 'jsbarcode'
  
 // Renders the zebra-derived UPC as a scannable barcode on an SVG element.
