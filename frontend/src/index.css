@@ -587,6 +587,20 @@ body {
   object-fit: contain;
 }
 
+/* Hidden until onLoad fires — still fetches while invisible */
+.results-page__product-img--hidden {
+  display: none;
+}
+
+/* Spinner placeholder while product image is fetching */
+.results-page__product-img-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  width: 100%;
+}
+
 .results-page__product-title {
   font-family: var(--font-display);
   font-size: clamp(1.1rem, 2vw, 1.5rem);

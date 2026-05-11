@@ -1,6 +1,23 @@
+import { useState, useEffect } from 'react'
+
 export default function ProcessingPage({ connecting, step, progress, confidence }) {
+  
   const isDetectionStep = step.label === 'Zebra Detected'
   
+  const [displayed, setDisplayed] = useState({ label: '', description: '', image: null })
+
+  useEffect(() => {
+    if (!step.image) {
+      setDisplayed(step)
+      return
+    }
+    const img = new window.Image()
+    img.onload  = () => setDisplayed(step)
+    img.onerror = () => setDisplayed(step)
+    img.src = `data:image/png;base64,${step.image}`
+    return () => { img.onload = null; img.onerror = null }
+  }, [step.image])
+
   return (
     <div className="processing-page page">
 
@@ -15,6 +32,7 @@ export default function ProcessingPage({ connecting, step, progress, confidence 
               CONNECTING TO PIPELINE...
             </span>
           </div>
+
         ) : (
           <div className="processing-page__step">
             <div className="processing-page__step-header">
@@ -27,6 +45,7 @@ export default function ProcessingPage({ connecting, step, progress, confidence 
                 </span>
               )}
             </div>
+
             <p className="processing-page__step-description">
               {step.description || 'Analysing image...'}
             </p>
@@ -36,16 +55,16 @@ export default function ProcessingPage({ connecting, step, progress, confidence 
 
       {/* ── Image area — skeleton until first frame arrives ───── */}
       <div className="processing-page__image-area">
-        {connecting || !step.image ? (
+        {connecting || !displayed.image ? (
           <div className="processing-page__skeleton">
             <div className="processing-page__spinner" aria-label="Loading" />
           </div>
         ) : (
           <img
-            key={step.label}        /* remount triggers fade-up on each new step */
+            key={displayed.label}        /* remount triggers fade-up on each new step */
             className="processing-page__image fade-up"
-            src={`data:image/png;base64,${step.image}`}
-            alt={`Pipeline step: ${step.label}`}
+            src={`data:image/png;base64,${displayed.image}`}
+            alt={`Pipeline step: ${displayed.label}`}
           />
         )}
       </div>

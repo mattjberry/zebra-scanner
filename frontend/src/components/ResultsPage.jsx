@@ -66,6 +66,9 @@ export default function ResultsPage({originalImage, upc, product, onReset}) {
     : null
 
 
+  const [imgLoaded, setImgLoaded] = useState(false)
+
+
   return (
     <div className="results-page page">
  
@@ -105,10 +108,20 @@ export default function ResultsPage({originalImage, upc, product, onReset}) {
  
           {imgSrc && (
             <div className="results-page__product-image-wrap">
+              {/* Spinner shown until image loads */}
+              {!imgLoaded && (
+                <div className="results-page__product-img-spinner">
+                  <div className="processing-page__spinner" />
+                </div>
+              )}
               <img
-                className="results-page__product-img"
+                className={`results-page__product-img ${
+                  imgLoaded ? '' : 'results-page__product-img--hidden'
+                }`}
                 src={imgSrc}
                 alt={name}
+                onLoad={() => setImgLoaded(true)}
+                onError={() => setImgLoaded(true)}
               />
             </div>
           )}
