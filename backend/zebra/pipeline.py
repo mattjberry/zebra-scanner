@@ -6,6 +6,7 @@ import base64
 import numpy as np
 from skimage import io as skio, color, filters, morphology, transform, measure
 from skimage.util import img_as_ubyte
+from PIL import Image as PILImage
 import matplotlib
 matplotlib.use('Agg')  # non-interactive backend, required in Docker
 import matplotlib.pyplot as plt
@@ -33,30 +34,40 @@ CONFIDENCE_THRESHOLD = 0.35
 
 def array_to_base64(image_array, cmap=None):
     """
-    Convert a numpy image array to a base64-encoded PNG string
-    suitable for embedding directly in JSON / an <img> src tag.
+    Encode a numpy image array as a lossless base64 PNG.
+    Uses Pillow directly rather than Matplotlib to preserve full resolution
+    as the array is already at the correct pixel dimensions from scikit-image.
     """
-    fig, ax = plt.subplots(figsize=(4, 3), dpi=80)
-    ax.axis('off')
-
-    if cmap:
-        ax.imshow(image_array, cmap=cmap, aspect='auto')
-    else:
-        ax.imshow(image_array, aspect='auto')
-
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
-    plt.close(fig)
-    buf.seek(0)
-    return base64.b64encode(buf.read()).decode('utf-8')
+
+    if cmap == 'gray' or image_array.ndim == 2:
+        if image_array.dtype != np.uint8:
+            # float array (e.g. from rgb2gray) — scale to 0-255
+            arr = (image_array * 255).clip(0, 255).astype(np.uint8)
+        elif image_array.max() <= 1:
+            # binary uint8 array (0s and 1s) — scale to full range
+            arr = (image_array * 255).astype(np.uint8)
+        else:
+            # already 0-255
+            arr = image_array
+        PILImage.fromarray(arr, mode='L').save(buf, format='PNG')
+    else:
+        if image_array.dtype != np.uint8:
+            arr = (image_array * 255).clip(0, 255).astype(np.uint8)
+        elif image_array.max() <= 1:
+            arr = (image_array * 255).astype(np.uint8)
+        else:
+            arr = image_array
+        PILImage.fromarray(arr, mode='RGB').save(buf, format='PNG')
 
 
 def signal_to_base64(signal):
     """
     Convert a 1D numpy signal array to a base64-encoded plot image.
     """
-    fig, ax = plt.subplots(figsize=(6, 2), dpi=80)
-    ax.plot(signal, color='black', linewidth=0.8)
+    fig, ax = plt.subplots(figsize=(8, 2), dpi=150)
+    ax.set_facecolor('white')
+    ax.plot(signal, color='#1A1A1A', linewidth=1.2)
     ax.set_ylim(0, 1)
     ax.axis('off')
 
