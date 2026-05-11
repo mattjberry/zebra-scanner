@@ -19,8 +19,8 @@ from .lookup import find_nearest_product
 # yolov8n.pt is downloaded at Docker build time via the Dockerfile.
 _yolo = YOLO('yolov8n.pt')
  
-# COCO dataset class ID for zebra
-ZEBRA_CLASS_ID = 24
+# Ultralytics uses 0-indexed COCO class IDs — zebra is 22 (not 24, which is the raw 1-indexed COCO ID)
+ZEBRA_CLASS_ID = 22
  
 # Minimum confidence to accept a detection.
 # 0.35 is permissive enough for partial or partially obscured zebras
@@ -155,7 +155,8 @@ def clean_binary(binary):
     """
     cleaned = morphology.remove_small_objects(
         binary.astype(bool),
-        max_size=20
+        # min_size is deprecated in scikit-image 0.24 but were running 0.22
+        min_size=20
     )
     return cleaned.astype(np.uint8)
 
