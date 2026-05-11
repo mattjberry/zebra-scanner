@@ -1,4 +1,6 @@
-export default function ProcessingPage({ connecting, step, progress }) {
+export default function ProcessingPage({ connecting, step, progress, confidence }) {
+  const isDetectionStep = step.label === 'Zebra Detected'
+  
   return (
     <div className="processing-page page">
 
@@ -15,9 +17,16 @@ export default function ProcessingPage({ connecting, step, progress }) {
           </div>
         ) : (
           <div className="processing-page__step">
-            <span className="processing-page__step-label mono">
-              {step.label || 'Processing'}
-            </span>
+            <div className="processing-page__step-header">
+              <span className="processing-page__step-label mono">
+                {step.label || 'Processing'}
+              </span>
+              {isDetectionStep && confidence !== null && (
+                <span className="processing-page__confidence-badge mono">
+                   - {confidence}% Confidence
+                </span>
+              )}
+            </div>
             <p className="processing-page__step-description">
               {step.description || 'Analysing image...'}
             </p>

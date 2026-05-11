@@ -17,6 +17,7 @@ const INITIAL_STATE = {
     description: '',      // e.g. "Otsu thresholding applied..."
     image: null,          // base64 PNG of the current pipeline stage
   },
+  confidence: null,
   progress: 0,            // 0–100 from pipeline events
   upc: null,              // 12-digit UPC-A candidate string
   product: null,          // { product, upc, image, offers[] } from lookup
@@ -126,6 +127,7 @@ export default function App() {
               image:       event.image || null,
             },
           }),
+          ...(event.confidence !== undefined && { confidence: event.confidence }),
           ...(event.upc_candidate           && { upc: event.upc_candidate }),
           ...(event.result                  && { product: event.result, view: 'results' }),
         }))
@@ -140,7 +142,7 @@ export default function App() {
     }
   }, [])
 
-  const { view, originalImage, connecting, step, progress, upc, product, errorMessage } = state
+  const { view, originalImage, connecting, step, progress, confidence, upc, product, errorMessage } = state
 
   return (
     // app--{view} modifier lets CSS target view-specific backgrounds/transitions
@@ -161,6 +163,7 @@ export default function App() {
             connecting={connecting}
             step={step}
             progress={progress}
+            confidence={confidence}
           />
         )}
 

@@ -9,9 +9,23 @@ from skimage.util import img_as_ubyte
 import matplotlib
 matplotlib.use('Agg')  # non-interactive backend, required in Docker
 import matplotlib.pyplot as plt
+from ultralytics import YOLO
 
 from .lookup import find_nearest_product
 
+
+# ── YOLO model ────────────────────────────────────────────────────────────────
+# Loaded once at module import — shared across all requests.
+# yolov8n.pt is downloaded at Docker build time via the Dockerfile.
+_yolo = YOLO('yolov8n.pt')
+ 
+# COCO dataset class ID for zebra
+ZEBRA_CLASS_ID = 24
+ 
+# Minimum confidence to accept a detection.
+# 0.35 is permissive enough for partial or partially obscured zebras
+# while rejecting clearly non-zebra images.
+CONFIDENCE_THRESHOLD = 0.35
 
 # ---------------------------------------------------------------
 # Helpers
@@ -66,9 +80,51 @@ def step_event(label, description, image_b64=None, progress=0, data=None):
     }
 
 
-# ---------------------------------------------------------------
-# Pipeline steps
-# ---------------------------------------------------------------
+def detect_zebra(image):
+    """
+    Run YOLO object detection on the image and return the best zebra detection.
+ 
+    Returns (confidence, bbox) where:
+      confidence  float 0-1
+      bbox        (x1, y1, x2, y2) in pixel coords, or None if no detection
+    """
+    results = _yolo(image, verbose=False)
+ 
+    best_conf = 0.0
+    best_bbox = None
+ 
+    for result in results:
+        for box in result.boxes:
+            if int(box.cls) == ZEBRA_CLASS_ID:
+                conf = float(box.conf)
+                if conf > best_conf:
+                    best_conf = conf
+                    # xyxy gives [x1, y1, x2, y2] in pixel coordinates
+                    best_bbox = box.xyxy[0].cpu().numpy().astype(int)
+ 
+    return best_conf, best_bbox
+
+
+def crop_to_bbox(image, bbox, padding=0.05):
+    """
+    Crop the image to the detected bounding box with a small padding margin.
+ 
+    Padding is expressed as a fraction of the bounding box dimensions so it
+    scales naturally with image size. Clamped to image bounds.
+    """
+    h, w = image.shape[:2]
+    x1, y1, x2, y2 = bbox
+ 
+    pad_x = int((x2 - x1) * padding)
+    pad_y = int((y2 - y1) * padding)
+ 
+    x1 = max(0, x1 - pad_x)
+    y1 = max(0, y1 - pad_y)
+    x2 = min(w, x2 + pad_x)
+    y2 = min(h, y2 + pad_y)
+ 
+    return image[y1:y2, x1:x2]
+
 
 def load_image(image_bytes):
     """Load image bytes into a numpy array."""
@@ -234,7 +290,6 @@ def build_upc(eleven_digits):
     return eleven_digits + check
 
 
-
 # ---------------------------------------------------------------
 # Pipeline runner — generator that yields SSE-ready step dicts
 # ---------------------------------------------------------------
@@ -254,7 +309,33 @@ def run_pipeline(image_bytes):
         progress=10,
     )
 
-    # Step 2 — Grayscale
+    # Step 2 - Detect and Crop to bounding box
+    conf, bbox = detect_zebra(image)
+    confidence_pct = round(conf * 100)
+ 
+    if conf < CONFIDENCE_THRESHOLD:
+        yield {
+            'error': (
+                f"Couldn't find any zebras..."
+                f'(confidence: {confidence_pct}%). '
+                f'Try a clearer or closer photo.'
+            )
+        }
+        return
+ 
+    # Crop to the detected bounding box — removes background noise before
+    # thresholding so the signal reflects stripe data only
+    image = crop_to_bbox(image, bbox)
+ 
+    yield step_event(
+        label='Zebra Detected',
+        description=f'Zebra found with {confidence_pct}% confidence. Image cropped to subject.',
+        image_b64=array_to_base64(image),
+        progress=10,
+        data={'confidence': confidence_pct},
+    )
+
+    # Step 3 — Grayscale
     gray = to_grayscale(image)
     yield step_event(
         label='Grayscale',
@@ -263,7 +344,7 @@ def run_pipeline(image_bytes):
         progress=25,
     )
 
-    # Step 3 — Threshold
+    # Step 4 — Threshold
     binary = threshold_image(gray)
     yield step_event(
         label='Threshold',
@@ -272,7 +353,7 @@ def run_pipeline(image_bytes):
         progress=40,
     )
 
-    # Step 4 — Clean
+    # Step 5 — Clean
     cleaned = clean_binary(binary)
     yield step_event(
         label='Cleaned',
@@ -281,7 +362,7 @@ def run_pipeline(image_bytes):
         progress=55,
     )
 
-    # Step 5 — Align
+    # Step 6 — Align
     aligned = align_stripes(cleaned)
     yield step_event(
         label='Aligned',
@@ -290,7 +371,7 @@ def run_pipeline(image_bytes):
         progress=65,
     )
 
-    # Step 6 — Project to signal
+    # Step 7 — Project to signal
     signal = project_to_signal(aligned)
     normalized = normalize_signal(signal)
     yield step_event(
@@ -300,7 +381,7 @@ def run_pipeline(image_bytes):
         progress=75,
     )
 
-    # Step 7 — Decode to UPC
+    # Step 8 — Decode to UPC
     eleven_digits = signal_to_barcode_string(normalized)
     upc = build_upc(eleven_digits)
     yield step_event(
@@ -310,7 +391,7 @@ def run_pipeline(image_bytes):
         data={'upc_candidate': upc},
     )
 
-    # Step 8 — Lookup
+    # Step 9 — Lookup
     yield step_event(
         label='Searching',
         description='Scanning Open Food Facts for the nearest product...',

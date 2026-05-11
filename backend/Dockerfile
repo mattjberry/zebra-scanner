@@ -12,6 +12,10 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Download the YOLO model weights at build time so the first request
+# doesn't stall waiting for a ~6MB download
+RUN python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+
 COPY . .
 
 EXPOSE 8000
