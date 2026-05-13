@@ -41,10 +41,7 @@ simply an optical encoding of a 12-digit number. That number breaks down as:
 The check digit is computed using a weighted sum of the first 11 digits mod 10,
 which means a randomly generated 11-digit string can always be made into a valid
 UPC by computing and appending the correct check digit. This property is central
-to the pipeline. Note - EAN-13 is another version of barcode signalling, used by
-the database that used to query. It acts a superset of UPC, where every UPC code is
-a valid EAN-13 code. Both refer to the same thing, the numerical representation of the
-barcode.
+to the pipeline.
 
 ### Why Zebras
 
@@ -187,7 +184,7 @@ between four views based on the current pipeline state.
 
 ```
 upload  →  processing  →  results
-                       |  error
+                       ↘  error
 ```
 
 All shared state lives in `App.jsx` and is passed down as props. The four views
@@ -303,3 +300,36 @@ Two containers, no orchestration overhead:
 - **Pipeline robustness:** Some images still produce a degenerate all-zeros
   signal. Further work on the alignment step and signal binarization would
   improve reliability beyond the current level.
+
+
+---
+
+## Addendum — Decisions Made During Implementation
+
+### Decision: YOLO for Zebra Detection
+**Chosen over:** CLIP zero-shot classification, pretrained ImageNet classifiers.
+
+Zebra is a native COCO dataset class (class ID 22), meaning YOLOv8 was literally trained on zebras without any adaptation. As an object detection model rather than a classifier, it handles partial and obscured subjects well — it finds a zebra wherever it appears in the frame rather than requiring it to dominate the composition. The nano model (yolov8n.pt) is only ~6MB compared to ~340MB for the smallest useful CLIP model, making it much more practical to ship in the Docker image.
+
+The model weights are downloaded at Docker build time via a single RUN command in the Dockerfile, so the first request is never stalled by a download.
+
+### Decision: Bounding Box Crop Before Pipeline
+The YOLO detection returns a bounding box around the detected zebra. Rather than discarding this information after the gate check, the image is immediately cropped to the bounding box (with a small 5% padding margin) before any further processing. This means the Otsu thresholding, morphological cleanup, and 1D signal projection all operate on stripe data only, with background, sky, and other animals removed. Signal quality improved noticeably after this change.
+
+### Decision: PIL for Image Encoding
+The original pipeline used Matplotlib to render pipeline step images at `figsize=(4,3), dpi=80` — 320×240 pixels regardless of input image size. After increasing the display size in the frontend CSS, this resolution became visibly poor. Replacing Matplotlib with direct PIL encoding gives true lossless PNG output at the full resolution of whatever scikit-image is working with. Matplotlib is still used for the signal plot since that is an actual chart rather than an image array.
+
+A subtle gotcha: binary uint8 arrays (output of thresholding and morphological steps) have values of 0 and 1 rather than 0–255. PIL renders these as black. The fix is a range check before encoding — if `image_array.max() <= 1`, the array is scaled by 255 before passing to PIL.
+
+### Decision: Queue-Based Step Display in ProcessingPage
+The initial approach preloaded each incoming image before displaying it, but cancelled the preload when the next step arrived. This worked until high-resolution images were introduced — large images took longer than the inter-step delay to decode, so every load was being cancelled before it finished.
+
+The fix decouples step arrival from step display entirely. Incoming steps are pushed to a queue (`queueRef`). A `busyRef` flag prevents concurrent processing. Each step is shown only after its image has fully decoded, and is held for a minimum of `DISPLAY_MS` (1000ms) before the next step is processed. This gives every step a guaranteed minimum display time regardless of network timing or image decode speed.
+
+### Decision: Separating Backend Sleep by Step Type
+SSE events for image steps were initially sent with no delay between them. React 18's automatic batching groups synchronous `setState` calls from a single event loop tick into one render, which caused intermediate steps arriving in the same network chunk to be silently dropped — only the last step in a batch was ever pushed to the queue. Adding a 300ms sleep after image steps ensures each SSE event arrives as a separate network chunk and triggers its own React render cycle.
+
+Imageless steps (Barcode, Searching) retain a longer 1.5s sleep since they have no image decode time to create natural visual pacing.
+
+### Decision: Delayed Results Transition
+When the Result SSE event arrived, App.jsx immediately transitioned to the results view, unmounting ProcessingPage before the Searching step's 1-second display timer had finished. The fix waits 1500ms after receiving the product result before transitioning — enough time for the Searching step to complete its display cycle plus a small buffer. The product data is already in state during this window, so the results page has everything it needs the moment it mounts.
