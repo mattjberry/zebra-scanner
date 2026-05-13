@@ -1,4 +1,4 @@
-# Zebra Barcode
+# Zebra Scanner
 
 A novelty web app that reads a zebra's stripes as a barcode, decodes them into a UPC, and finds the nearest matching grocery product in the Open Food Facts database.
 
@@ -153,5 +153,5 @@ zebra-barcode/
 
 - The app is stateless — no images or results are stored anywhere
 - The YOLO model weights (~6MB) are downloaded at Docker build time
-- Open Food Facts coverage is strongest for European grocery products
+- Open Food Facts coverage is strongest for European grocery products, sometimes you get results in french lol
 - Some zebra photos will degenerate to all zeros
