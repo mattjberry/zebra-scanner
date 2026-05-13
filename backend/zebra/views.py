@@ -52,9 +52,17 @@ def _event_stream(image_bytes):
         for step in run_pipeline(image_bytes):
             payload = json.dumps(step)
             yield f"data: {payload}\n\n"
-            # Add an artificial delay between each processing step excluding end steps
-            if not step.get('done') and not step.get('error') and not step.get('result'):
-                time.sleep(1)
+
+            is_result = step.get('result') is not None
+            is_error  = step.get('error') is not None
+
+            if not is_result and not is_error:
+                # Small sleep for ALL steps, ensures each SSE event arrives
+                # as a separate network chunk so React processes them individually.
+                # Image steps get a shorter delay since the queue in ProcessingPage
+                # handles visual timing independently.
+                has_image = step.get('image') is not None
+                time.sleep(0.2 if has_image else 1.5)
 
     except Exception as e:
         yield f"data: {json.dumps({'error': str(e)})}\n\n"

@@ -60,6 +60,9 @@ def array_to_base64(image_array, cmap=None):
             arr = image_array
         PILImage.fromarray(arr, mode='RGB').save(buf, format='PNG')
 
+    buf.seek(0) # rewind buffer so we can read from the start
+    return base64.b64encode(buf.read()).decode('utf-8') # return as a base64 string for SSE
+
 
 def signal_to_base64(signal):
     """

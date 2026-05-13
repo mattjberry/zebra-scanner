@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import UploadPage from './components/UploadPage'
 import ProcessingPage from './components/ProcessingPage'
 import ResultsPage from './components/ResultsPage'
@@ -128,8 +128,8 @@ export default function App() {
             },
           }),
           ...(event.confidence !== undefined && { confidence: event.confidence }),
-          ...(event.upc_candidate           && { upc: event.upc_candidate }),
-          ...(event.result                  && { product: event.result, view: 'results' }),
+          ...(event.upc_candidate            && { upc: event.upc_candidate }),
+          ...(event.result                   && { product: event.result }),
         }))
       }
 
@@ -141,6 +141,18 @@ export default function App() {
       }))
     }
   }, [])
+
+  // watch product to provide a delay between transitions
+  useEffect(() => {
+    if (!state.product) {
+      return
+    }
+    const timer = setTimeout(() =>{
+      setState(prev => ({ ...prev, view: 'results'}))
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [state.product])
+
 
   const { view, originalImage, connecting, step, progress, confidence, upc, product, errorMessage } = state
 
