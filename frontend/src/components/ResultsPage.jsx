@@ -70,7 +70,7 @@ export default function ResultsPage({originalImage, upc, product, onReset}) {
         {/* Right — product details */}
         <div className="results-page__product-area">
  
-          {imgSrc && (
+          {imgSrc ? (
             <div className="results-page__product-image-wrap">
               {/* Spinner shown until image loads */}
               {!imgLoaded && (
@@ -87,6 +87,10 @@ export default function ResultsPage({originalImage, upc, product, onReset}) {
                 onLoad={() => setImgLoaded(true)}
                 onError={() => setImgLoaded(true)}
               />
+            </div>
+          ) : (
+            <div className="results-page__product-image-wrap results-page__product-image-wrap--empty">
+              <span className="results-page__no-image mono">No image on record</span>
             </div>
           )}
  

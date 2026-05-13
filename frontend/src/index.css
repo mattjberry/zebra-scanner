@@ -588,9 +588,15 @@ body {
   object-fit: contain;
 }
 
-.results-page__product-img--not-found {
+/* Empty image wrap — same dimensions as the filled version for layout consistency */
+.results-page__product-image-wrap--empty {
+  min-height: 160px;
+  justify-content: center;
+}
+
+.results-page__no-image {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
 }
 
