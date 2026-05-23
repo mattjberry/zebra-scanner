@@ -1,0 +1,32 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# System dependencies for scikit-image and Pillow
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Download YOLO model weights at build time
+RUN python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+
+COPY . .
+
+# Collect static files
+RUN python3 manage.py collectstatic --noinput
+
+EXPOSE 8080
+
+# Cloud Run expects port 8080 by default
+# Workers set to 1 — pipeline is CPU heavy, let Cloud Run
+# scale horizontally rather than vertically
+CMD ["gunicorn", "core.wsgi:application", \
+     "--bind", "0.0.0.0:8080", \
+     "--workers", "1", \
+     "--timeout", "120", \
+     "--keep-alive", "5"]

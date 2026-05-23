@@ -81,6 +81,7 @@ TEMPLATES = [
 
 # ── Static files ──────────────────────────────────────────────────────────────
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # ── Internationalisation ──────────────────────────────────────────────────────
 LANGUAGE_CODE = 'en-us'
