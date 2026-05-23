@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ── Security ──────────────────────────────────────────────────────────────────
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-change-me')
 DEBUG      = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ['*']  # tighten for production
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 # ── Applications ──────────────────────────────────────────────────────────────
 # Stripped to minimum — no auth, sessions, or admin since we have no database
@@ -32,9 +32,10 @@ MIDDLEWARE = [
 ]
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  # Vite dev server
-]
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173'
+).split(',')
 
 # ── URLs / WSGI ───────────────────────────────────────────────────────────────
 ROOT_URLCONF      = 'core.urls'
