@@ -38,7 +38,7 @@ export default function UploadPage({ onUpload }) {
       <div className="upload-page__header fade-up">
         <div className="accent-bar upload-page__accent-bar" />
         <h1 className="upload-page__title display">
-          Zebra&nbsp;<span className="upload-page__title-accent">Barcode</span>
+          Zebra&nbsp;<span className="upload-page__title-accent">Scanner</span>
         </h1>
         <p className="upload-page__tagline">
           Upload a photo of a zebra. We'll read its stripes as a barcode,
